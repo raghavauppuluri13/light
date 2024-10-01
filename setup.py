@@ -1,0 +1,28 @@
+import os
+import sys
+
+from setuptools import setup, find_packages
+
+setup(
+    name="light",
+    version="0.0.1",
+    packages=find_packages(),
+    description="Hardware for carbonbot",
+    url="https://github.com/raghavauppuluri13/light",
+    author="Raghava Uppuluri",
+    install_requires=[
+        "opencv-python",
+        "numpy",
+        "toml",
+        "click",
+        "rerun-sdk==0.15.1",
+        "pyarrow",
+        "pynput",
+        "zerorpc",
+        "maturin",
+        "mujoco",
+        "tomlkit",
+        "zarr",
+        "numcodecs",
+    ],
+)
