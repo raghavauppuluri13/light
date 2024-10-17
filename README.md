@@ -1,6 +1,6 @@
 # light
 
-Simple template repo with sane defaults for high performance, reliable hardware prototyping so you can iterate at the speed of light
+Simple template repo with sane defaults for high performance, reliable hardware prototyping so you can iterate at the speed of light.
 
 Uses dora as shared memory IPC communication backend. Use C for high performance stuff, and python for human interface tooling.
 
@@ -42,6 +42,8 @@ These are constants and are exported via `CONFIG=<CONFIG_NAME> make setup` or `C
 python: `import light.utils.constants as CFG` and c/c++: `#include "constants.h"`. Its just a simple python parser on top of toml.
 
 ### IPC
+
+"Keep it simple. No abstractions. It's just float arrays and operations on float arrays." - Andrej Karpathy on llm.c
 
 Found that it is sufficient to just send fixed size arrays of ints and floats between C and python and repackage them on either side.
 For repackaging, see `light/utils/messages.py` for python and `src/messages.h(.c)` for C

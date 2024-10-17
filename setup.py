@@ -7,7 +7,7 @@ setup(
     name="light",
     version="0.0.1",
     packages=find_packages(),
-    description="Hardware for carbonbot",
+    description="Sane defaults for hardware prototyping with python and C",
     url="https://github.com/raghavauppuluri13/light",
     author="Raghava Uppuluri",
     install_requires=[

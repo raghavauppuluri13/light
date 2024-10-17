@@ -9,10 +9,10 @@ fi
 old_string=$1
 new_string=$2
 
-# Replace in file contents (for .h, .c, and .py files)
-find .  -type f \( -name "*.h" -o -name "*.c" -o -name "*.py" \) -exec sed -i "s/${old_string}/${new_string}/g" {} +
+# Replace in file contents (for .h, .c, and .py files, ignoring case)
+find . -type f \( -name "*.h" -o -name "*.c" -o -name "*.py" \) -exec sed -i "s/${old_string}/${new_string}/gI" {} +
 
-# Replace in filenames and directory names
-find . -depth -name "*${old_string}*" -execdir rename "s/${old_string}/${new_string}/g" "{}" \;
+# Replace in filenames and directory names, ignoring case
+find . -depth -name "*${old_string}*" -execdir rename "y/$(echo ${old_string} | tr '[:lower:]' '[:upper:]')/$(echo ${new_string} | tr '[:lower:]' '[:upper:]')/" "{}" \;
 
 echo "Rename complete!"

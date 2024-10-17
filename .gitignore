@@ -3,6 +3,7 @@ recordings/
 *.stl
 *.part
 !*_collision*.stl
+constants.*
 
 # Prerequisites
 *.d

@@ -32,6 +32,13 @@ if arch == 'x86_64':
     libs = DORA_LIBS
     libpath = DORA_PATH
     cpppath = []
+elif arch == 'Darwin':
+    # not tested
+    cflags = ['-fdeclspec', '-fPIC', '-g', '-O3']
+    cc = 'clang'
+    libs = DORA_LIBS
+    libpath = DORA_PATH
+    cpppath = []
 
 if ARGUMENTS.get('debug', 0) == '1':
     cflags.append('-DDEBUG')
