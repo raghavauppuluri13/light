@@ -5,14 +5,9 @@ nodes:
       inputs:
         tick: dora/timer/millis/5
       outputs:
-        - function_data
-  - id: rec
+        - fov
+  - id: rerun_node
     custom:
-      source: ../scripts/recorder.py
+      source: ../scripts/rerun_node.py
       inputs:
-        tick: dora/timer/millis/10
-  - id: rerun
-    custom:
-      source: ../scripts/rerun.py
-      inputs:
-        function_data: quickstart_node/function_data
+        fov: quickstart_node/fov

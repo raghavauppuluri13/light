@@ -1,5 +1,6 @@
 from typing import Callable
 from dora import DoraStatus, Node
+from light.utils.message_utils import msg_init, msg_to_raw
 import light.utils.messages as MSG
 import light.utils.constants as CFG
 import os
@@ -19,13 +20,8 @@ class Visualizer:
         while True:
             for event in self.node:
                 if event["type"] == "INPUT":
-                    if event['id'] == 'image':
+                    if event['id'] in ['image', 'fov']:
                         self.on_image_input(event)
-                    elif event['id'] in ['function_data']:
-                        self.on_array_input(
-                            event,
-                            MSG.FUNCTION_DATA_ARRAY(CFG.CONTROL_NUM_JOINTS),
-                        )
                 elif event["type"] == "STOP":
                     print("Stopping!")
                     return
@@ -37,7 +33,10 @@ class Visualizer:
         self,
         dora_input: dict,
     ):
-        frame = dora_input["value"].to_numpy().reshape((CFG.CAMERA_HEIGHT, CFG.CAMERA_WIDTH, 3))
+        stamp = dora_input['metadata']
+        msg = msg_init(MSG.Image(), buffer=dora_input["value"].to_numpy().copy())
+        frame = msg["data"].reshape((CFG.CAMERA_HEIGHT, CFG.CAMERA_WIDTH, 1))
+        print(frame.shape)
         h0, w0, _ = frame.shape
         rr.log("camera/{}".format(dora_input['id']), rr.Image(frame.copy()))
 
@@ -47,7 +46,7 @@ class Visualizer:
         dtype: np.dtype,
     ):
         stamp = dora_input['metadata']
-        msg = MSG.init(dtype, buffer=dora_input["value"].to_numpy().copy())
+        msg = msg_init(dtype, buffer=dora_input["value"].to_numpy().copy())
         for name in msg.dtype.names:
             if isinstance(msg[name], np.ndarray):
                 arr = msg[name].flatten()

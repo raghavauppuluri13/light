@@ -1,13 +1,6 @@
-[Quaternion]
-x = "f32" 
-y = "f32"
-z = "f32"
-w = "f32"
-
-[Vector3]
-x = "f32"
-y = "f32"
-z = "f32"
+[Pose]
+pos = ["f32",'3']
+quat = ["f32",'4']
 
 [Image]
-pix = ["u8","CFG_CAMERA_WIDTH * CFG_CAMERA_HEIGHT"]
+data = ["u8","CFG_CAMERA_WIDTH * CFG_CAMERA_HEIGHT"]

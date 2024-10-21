@@ -15,7 +15,7 @@ setup(
         "numpy",
         "toml",
         "click",
-        "rerun-sdk==0.15.1",
+        "rerun-sdk==0.18.2",
         "pyarrow",
         "pynput",
         "zerorpc",
