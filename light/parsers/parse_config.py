@@ -3,6 +3,7 @@ import click
 from pathlib import Path
 from datetime import datetime
 import re
+import light.utils.paths as PTH
 
 
 def to_snake_case(name):
@@ -15,11 +16,11 @@ def to_snake_case(name):
 @click.argument('header_path',
                 type=click.Path(),
                 required=False,
-                default=str(Path(__file__).parent.parent / 'src' / 'constants.h'))
+                default=str(PTH.REPO_PATH / 'src' / 'constants.h'))
 @click.argument('py_path',
                 type=click.Path(),
                 required=False,
-                default=str(Path(__file__).parent.parent / 'light' / 'utils' / 'constants.py'))
+                default=str(PTH.PKG_PATH / 'utils' / 'constants.py'))
 def main(toml_path, header_path, py_path):
     # Load the TOML file
     with open(toml_path, 'r') as file:
@@ -60,35 +61,35 @@ def main(toml_path, header_path, py_path):
             header_file.write("// -------------------------------\n")
             header_file.write(f"// Constants for {section}\n")
             header_file.write("// -------------------------------\n")
-            if isinstance(values, dict):
-                for key, value in values.items():
-                    full_key_name = f"CFG_{section.upper()}_{key}".upper()
-                    py_key_name = f"{section.upper()}_{key}".upper()
-                    if isinstance(value, list):
-                        if all(isinstance(x, str) for x in value):
-                            element_type = "const char*"
-                            value_str = ', '.join(f'"{x}"' for x in value)
-                            py_value_str = ', '.join(f'"{x}"' for x in value)
-                        elif all(isinstance(x, int) for x in value):
-                            element_type = "int"
-                            value_str = ', '.join(f"{x}" for x in value)
-                            py_value_str = value_str
-                        elif all(isinstance(x, float) for x in value):
-                            element_type = "float"
-                            value_str = ', '.join(f"{x}" for x in value)
-                            py_value_str = value_str
-                        header_file.write(f"extern {element_type} {full_key_name}[];\n")
-                        c_file.write(f"{element_type} {full_key_name}[] = {{{value_str}}};\n")
-                        py_file.write(f"{py_key_name} = [{py_value_str}]\n")
-                    elif isinstance(value, str):
-                        header_file.write(f"#define {full_key_name} \"{value}\"\n")
-                        py_file.write(f'{py_key_name} = "{value}"\n')
-                    elif isinstance(value, int):
-                        header_file.write(f"#define {full_key_name} {value}\n")
-                        py_file.write(f'{py_key_name} = {value}\n')
-                    elif isinstance(value, float):
-                        header_file.write(f"#define {full_key_name} {value}\n")
-                        py_file.write(f'{py_key_name} = {value}\n')
+            assert isinstance(values, dict)
+            for key, value in values.items():
+                full_key_name = f"CFG_{section.upper()}_{key}".upper()
+                py_key_name = f"{section.upper()}_{key}".upper()
+                if isinstance(value, list):
+                    if all(isinstance(x, str) for x in value):
+                        element_type = "const char*"
+                        value_str = ', '.join(f'"{x}"' for x in value)
+                        py_value_str = ', '.join(f'"{x}"' for x in value)
+                    elif all(isinstance(x, int) for x in value):
+                        element_type = "int"
+                        value_str = ', '.join(f"{x}" for x in value)
+                        py_value_str = value_str
+                    elif all(isinstance(x, float) for x in value):
+                        element_type = "float"
+                        value_str = ', '.join(f"{x}" for x in value)
+                        py_value_str = value_str
+                    header_file.write(f"extern {element_type} {full_key_name}[];\n")
+                    c_file.write(f"{element_type} {full_key_name}[] = {{{value_str}}};\n")
+                    py_file.write(f"{py_key_name} = [{py_value_str}]\n")
+                elif isinstance(value, str):
+                    header_file.write(f"#define {full_key_name} \"{value}\"\n")
+                    py_file.write(f'{py_key_name} = "{value}"\n')
+                elif isinstance(value, int):
+                    header_file.write(f"#define {full_key_name} {value}\n")
+                    py_file.write(f'{py_key_name} = {value}\n')
+                elif isinstance(value, float):
+                    header_file.write(f"#define {full_key_name} {value}\n")
+                    py_file.write(f'{py_key_name} = {value}\n')
 
         header_file.write("#endif // CONSTANTS_H\n")
 

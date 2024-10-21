@@ -1,20 +1,6 @@
-[CAN2USB]
-  num_ifaces = 2
-  iface_names = ["can0", "can1"]
-  iface_slices = [0, 2, 4] # splits CAN/ids into 2 groups 0:2, 2:4 and assigns them to can0 and can1 respectively 
-  read_stale_time = 0.1 # time a can read frame is allowed to be used, before being marked as stale in seconds
 [CAMERA]
   width = 640
   height = 480
-[CAN]
-  ids = [0,1,2,3]
-
-[FUNCTION]
-len = 5
-coeff = [1,1,1,1,1]
-
 [RECORDER]
 name = "quickstart"
 sample_rate = 100
-
-

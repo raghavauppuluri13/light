@@ -3,6 +3,8 @@
 #ifndef DRIVER_H
 #define DRIVER_H
 
+#ifdef CFG_USBCAN_ENABLE
+
 #include "common.h"
 #include "constants.h"
 #include "log.h"
@@ -62,5 +64,7 @@ void canusb_destroy();
 int float_to_uint(float x, float x_min, float x_max, int bits);
 float uint_to_float(uint16_t x, float x_min, float x_max);
 void print_can_packet(uint32_t id, uint8_t *data, uint8_t len);
+
+#endif
 
 #endif

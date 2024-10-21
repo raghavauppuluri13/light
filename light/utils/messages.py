@@ -1,43 +1,27 @@
+# Auto-generated messages from TOML configuration messages/quickstart.toml at 2024-10-20 22:58:05.127348
+
 import numpy as np
+import light.utils.constants as CFG
 
 
-def to_raw(msg, base_dtype):
-    return np.frombuffer(msg, dtype=base_dtype)
-
-
-def init(dtype: np.dtype, buffer=None):
-    if buffer is not None:
-        return np.frombuffer(buffer, dtype=dtype)
-    return np.zeros(1, dtype=dtype)
-
-
-def F32_ARRAY(dof: int):
+def Quaternion():
     return np.dtype([
-        ("data", np.dtype((np.float32, (dof)))),
+        ("x", np.float32),
+        ("y", np.float32),
+        ("z", np.float32),
+        ("w", np.float32),
     ])
 
 
-# example msgs
-def FUNCTION_DATA_ARRAY(size: int):
+def Vector3():
     return np.dtype([
-        ("sin", np.dtype((np.float32, (size)))),
-        ("cos", np.dtype((np.float32, (size)))),
-        ("tan", np.dtype((np.float32, (size)))),
+        ("x", np.float32),
+        ("y", np.float32),
+        ("z", np.float32),
     ])
 
 
-if __name__ == "__main__":
-    msg = init(FUNCTION_DATA_ARRAY(6))
-    msg["sin"] = np.sin(np.arange(6, dtype=np.float32))
-    msg["cos"] = np.cos(np.arange(6, dtype=np.float32))
-    msg["tan"] = np.tan(np.arange(6, dtype=np.float32))
-    msg = to_raw(msg, np.float32)
-    print(msg)
-    print(msg.dtype)
-    msg = init(FUNCTION_DATA_ARRAY(6), buffer=msg)
-    for name in msg.dtype.names:
-        arr = msg[name].flatten()
-        for idx, val in enumerate(arr):
-            print(f'{name}[{idx}] = {val}')
-    print(msg)
-    print(msg.dtype)
+def Image():
+    return np.dtype([
+        ("pix", np.dtype((np.uint8, (CFG.CAMERA_WIDTH * CFG.CAMERA_HEIGHT)))),
+    ])

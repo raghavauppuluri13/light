@@ -1,0 +1,5 @@
+[FunctionData]
+hparams = "f32"
+sin = ["f32", "CFG_CAN_NUM_DEVICES"]
+cos = ["f32", "CFG_CAN_NUM_DEVICES"]
+tan = ["f32", "CFG_CAN_NUM_DEVICES"]

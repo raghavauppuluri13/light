@@ -36,6 +36,13 @@ static inline float leaky_integrator(float old, float new_val, float alpha) {
 }
 
 // dora utility
+static inline void dora_send_u8_array(void *dora_context, char *id,
+                                      uint8_t *arr, int arr_len) {
+    char *write[sizeof(uint8_t) * arr_len];
+    memcpy(write, arr, sizeof(uint8_t) * arr_len);
+    dora_send_output_u8(dora_context, id, strlen(id), (uint8_t *)&write,
+                        arr_len);
+}
 static inline void dora_send_f32_array(void *dora_context, char *id, float *arr,
                                        int arr_len) {
     char *write[sizeof(float) * arr_len];
@@ -67,24 +74,6 @@ static inline void dora_read_u64_array(void *event, uint64_t *arr,
     read_dora_input_data_f32(event, &read, &output_len);
     assert(output_len == arr_len);
     memcpy(arr, read, sizeof(float) * arr_len);
-}
-
-static inline void dora_read_array_struct(void *event, void *arr_struct_ptr,
-                                          int len, int num_fields) {
-    size_t output_len = 0;
-    float *read;
-    read_dora_input_data_f32(event, &read, &output_len);
-    assert(output_len == num_fields * len);
-    memcpy(arr_struct_ptr, read, sizeof(float) * len * num_fields);
-}
-
-static inline void dora_send_array_struct(void *dora_context, char *id,
-                                          void *arr_struct_ptr, int len,
-                                          int num_fields) {
-    char *write[sizeof(float) * num_fields * len];
-    memcpy(write, arr_struct_ptr, sizeof(float) * num_fields * len);
-    dora_send_output_f32(dora_context, id, strlen(id), (float *)&write,
-                         num_fields * len);
 }
 
 #endif

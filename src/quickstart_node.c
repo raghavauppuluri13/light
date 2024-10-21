@@ -1,14 +1,6 @@
 #include "common.h"
 #include <math.h>
 
-#define FunctionData_LEN 10
-#define FunctionData_FIELDS 3
-typedef struct {
-    float sin[FunctionData_LEN];
-    float cos[FunctionData_LEN];
-    float tan[FunctionData_LEN];
-} FunctionData;
-
 void *dora_context;
 void cleanup() { LOG("[c node] CLEANED UP!\n"); }
 
@@ -23,8 +15,6 @@ int main() {
         return -1;
     }
     LOG("[c node] dora context initialized\n");
-
-    FunctionData fdata = {0};
 
     struct timespec now, start;
     clock_gettime(CLOCK_MONOTONIC, &start);
@@ -59,15 +49,6 @@ int main() {
             LOG("[c node] received unexpected event: %d\n", ty);
         }
         free_dora_event(event);
-
-        // main
-        for (int i = 0; i < FunctionData_LEN; ++i) {
-            fdata.sin[i] = sin(elapsed);
-            fdata.cos[i] = cos(elapsed);
-            fdata.tan[i] = tan(elapsed);
-        }
-        dora_send_array_struct(dora_context, "function_data", &fdata,
-                               FunctionData_LEN, FunctionData_FIELDS);
     }
     free_dora_context(dora_context);
     LOG("[c node] finished successfully\n");

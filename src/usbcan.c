@@ -1,4 +1,5 @@
 #include "usbcan.h"
+#ifdef CFG_USBCAN_ENABLE
 
 /*
  * A Multithreaded SocketCan Driver for supports read/write from multiple can
@@ -171,3 +172,4 @@ void print_can_packet(uint32_t id, uint8_t *data, uint8_t len) {
     LOG("Data : ");
     PRINT_BYTES_IN_HEX(data, len);
 }
+#endif
