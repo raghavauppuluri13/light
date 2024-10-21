@@ -27,7 +27,7 @@ DORA_PATH = [f'external/dora/target/{target_type}']
 DORA_LIBS = ['dora_node_api_c', 'm', 'rt', 'dl', 'pthread']
 
 if arch == 'x86_64':
-    cflags = ['-fdeclspec', '-fPIC', '-g', '-O3']
+    cflags = ['-fdeclspec', '-fPIC', '-g', '-O3', '-mavx', '-mfma']
     cc = 'clang'
     libs = DORA_LIBS
     libpath = DORA_PATH
@@ -57,5 +57,8 @@ def add_node(env, node_name):
     program = env.Program(target=f'build/{node_name}', source=sources)
 
 
-# example nodes
-add_node(env, 'quickstart_node')
+nodes = [f for f in all_c_files if f.name.endswith('node.c')]
+
+# auto-add + build nodes
+for node in nodes:
+    add_node(env, node.name[:-2])
