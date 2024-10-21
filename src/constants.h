@@ -1,4 +1,4 @@
-// Auto-generated constants from TOML configuration config/quickstart.toml at 2024-10-21 03:53:26.933742
+// Auto-generated constants from TOML configuration config/quickstart.toml at 2024-10-21 11:07:00.647173
 
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
@@ -9,8 +9,8 @@
 // -------------------------------
 // Constants for CAMERA
 // -------------------------------
-#define CFG_CAMERA_WIDTH 640
-#define CFG_CAMERA_HEIGHT 480
+#define CFG_CAMERA_WIDTH 3000
+#define CFG_CAMERA_HEIGHT 3000
 // -------------------------------
 // Constants for RECORDER
 // -------------------------------

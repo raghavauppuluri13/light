@@ -1,4 +1,4 @@
-# Auto-generated messages from TOML configuration messages/quickstart.toml at 2024-10-21 03:53:27.083055
+# Auto-generated messages from TOML configuration messages/quickstart.toml at 2024-10-21 11:07:00.796546
 
 import numpy as np
 import light.utils.constants as CFG
@@ -9,5 +9,5 @@ def Pose():
 ])
 def Image():
 	return np.dtype([
-	("data", np.dtype((np.uint8,(CFG.CAMERA_WIDTH * CFG.CAMERA_HEIGHT)))),
+	("data", np.dtype((np.uint8,(CFG.CAMERA_WIDTH * CFG.CAMERA_HEIGHT * 3)))),
 ])

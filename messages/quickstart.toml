@@ -3,4 +3,4 @@ pos = ["f32",'3']
 quat = ["f32",'4']
 
 [Image]
-data = ["u8","CFG_CAMERA_WIDTH * CFG_CAMERA_HEIGHT"]
+data = ["u8","CFG_CAMERA_WIDTH * CFG_CAMERA_HEIGHT * 3"]

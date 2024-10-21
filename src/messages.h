@@ -1,4 +1,4 @@
-// Auto-generated messages from TOML configuration messages/quickstart.toml at 2024-10-21 03:53:27.083055
+// Auto-generated messages from TOML configuration messages/quickstart.toml at 2024-10-21 11:07:00.796546
 
 #ifndef MESSAGES_H
 #define MESSAGES_H
@@ -22,8 +22,8 @@ typedef struct {
 // Type definition for Image
 // -------------------------------
 typedef struct {
-	uint8_t data[CFG_CAMERA_WIDTH * CFG_CAMERA_HEIGHT];
+	uint8_t data[CFG_CAMERA_WIDTH * CFG_CAMERA_HEIGHT * 3];
 } Image;
-#define DORA_READ_Image(event, arr) dora_read_u8_array(event, arr, 307200)
-#define DORA_SEND_Image(dora_context, id, arr) dora_send_u8_array(dora_context, id, arr, 307200)
+#define DORA_READ_Image(event, arr) dora_read_u8_array(event, arr, 27000000)
+#define DORA_SEND_Image(dora_context, id, arr) dora_send_u8_array(dora_context, id, arr, 27000000)
 #endif // MESSAGES_H

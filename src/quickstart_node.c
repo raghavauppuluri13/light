@@ -1,4 +1,5 @@
 #include "common.h"
+#include <immintrin.h> // SSE/AVX intrinsics
 #include <math.h>
 
 #define MAX_ITER 10
@@ -9,7 +10,7 @@ void *dora_context;
 void cleanup() { LOG("[c node] CLEANED UP!\n"); }
 
 // Quaternion multiplication
-void quat_mult(float *q1, float *q2, float *result) {
+void quat_mult(const float *q1, const float *q2, float *result) {
     result[0] = q1[3] * q2[0] + q1[0] * q2[3] + q1[1] * q2[2] - q1[2] * q2[1];
     result[1] = q1[3] * q2[1] + q1[1] * q2[3] + q1[2] * q2[0] - q1[0] * q2[2];
     result[2] = q1[3] * q2[2] + q1[2] * q2[3] + q1[0] * q2[1] - q1[1] * q2[0];
@@ -17,17 +18,19 @@ void quat_mult(float *q1, float *q2, float *result) {
 }
 
 // Quaternion to matrix
-void quat_to_matrix(float *quat, float matrix[3][3]) {
+void quat_to_matrix(const float *quat, float matrix[3][3]) {
     float qx = quat[0], qy = quat[1], qz = quat[2], qw = quat[3];
-    matrix[0][0] = 1 - 2 * qy * qy - 2 * qz * qz;
-    matrix[0][1] = 2 * qx * qy - 2 * qz * qw;
-    matrix[0][2] = 2 * qx * qz + 2 * qy * qw;
-    matrix[1][0] = 2 * qx * qy + 2 * qz * qw;
-    matrix[1][1] = 1 - 2 * qx * qx - 2 * qz * qz;
-    matrix[1][2] = 2 * qy * qz - 2 * qx * qw;
-    matrix[2][0] = 2 * qx * qz - 2 * qy * qw;
-    matrix[2][1] = 2 * qy * qz + 2 * qx * qw;
-    matrix[2][2] = 1 - 2 * qx * qx - 2 * qy * qy;
+    matrix[0][0] = 1.0f - 2.0f * qy * qy - 2.0f * qz * qz;
+    matrix[0][1] = 2.0f * qx * qy - 2.0f * qz * qw;
+    matrix[0][2] = 2.0f * qx * qz + 2.0f * qy * qw;
+
+    matrix[1][0] = 2.0f * qx * qy + 2.0f * qz * qw;
+    matrix[1][1] = 1.0f - 2.0f * qx * qx - 2.0f * qz * qz;
+    matrix[1][2] = 2.0f * qy * qz - 2.0f * qx * qw;
+
+    matrix[2][0] = 2.0f * qx * qz - 2.0f * qy * qw;
+    matrix[2][1] = 2.0f * qy * qz + 2.0f * qx * qw;
+    matrix[2][2] = 1.0f - 2.0f * qx * qx - 2.0f * qy * qy;
 }
 
 // Mandelbulb distance estimator
@@ -49,6 +52,7 @@ float mandelbulb_distance(float x, float y, float z) {
     }
     return 0.5f * logf(r) * r / dr;
 }
+
 // Ray marching for fractal rendering
 float ray_march(float x, float y, float z, float dx, float dy, float dz) {
     float total_dist = 0.0f;
@@ -64,17 +68,108 @@ float ray_march(float x, float y, float z, float dx, float dy, float dz) {
     return total_dist;
 }
 
-// Render fractal
+// Render fractal with SIMD optimizations
 void render_fractal(const Pose *pose, Image *image) {
     float matrix[3][3];
-    quat_to_matrix((float *)pose->quat, matrix);
+    quat_to_matrix(pose->quat, matrix);
 
-    LOG("here");
-    for (int y = 0; y < CFG_CAMERA_HEIGHT; y++) {
-        for (int x = 0; x < CFG_CAMERA_WIDTH; x++) {
-            float fx = (x - CFG_CAMERA_WIDTH / 2.0f) / CFG_CAMERA_WIDTH * ZOOM;
-            float fy =
-                (y - CFG_CAMERA_HEIGHT / 2.0f) / CFG_CAMERA_HEIGHT * ZOOM;
+    // Precompute rotation matrix in AVX registers
+    __m256 m00 = _mm256_set1_ps(matrix[0][0]);
+    __m256 m01 = _mm256_set1_ps(matrix[0][1]);
+    __m256 m02 = _mm256_set1_ps(matrix[0][2]);
+    __m256 m10 = _mm256_set1_ps(matrix[1][0]);
+    __m256 m11 = _mm256_set1_ps(matrix[1][1]);
+    __m256 m12 = _mm256_set1_ps(matrix[1][2]);
+    __m256 m20 = _mm256_set1_ps(matrix[2][0]);
+    __m256 m21 = _mm256_set1_ps(matrix[2][1]);
+    __m256 m22 = _mm256_set1_ps(matrix[2][2]);
+
+    // Allocate memory aligned for AVX
+    uint8_t *data = image->data;
+    int width = CFG_CAMERA_WIDTH;
+    int height = CFG_CAMERA_HEIGHT;
+
+    // Process 8 pixels per iteration using AVX
+    for (int y = 0; y < height; y++) {
+        int x = 0;
+        for (; x <= width - 8; x += 8) {
+            // Compute fx and fy for 8 pixels
+            __m256 fx = _mm256_set_ps((x + 7 - width / 2.0f) / width * ZOOM,
+                                      (x + 6 - width / 2.0f) / width * ZOOM,
+                                      (x + 5 - width / 2.0f) / width * ZOOM,
+                                      (x + 4 - width / 2.0f) / width * ZOOM,
+                                      (x + 3 - width / 2.0f) / width * ZOOM,
+                                      (x + 2 - width / 2.0f) / width * ZOOM,
+                                      (x + 1 - width / 2.0f) / width * ZOOM,
+                                      (x + 0 - width / 2.0f) / width * ZOOM);
+
+            __m256 fy_val = _mm256_set1_ps((y - height / 2.0f) / height * ZOOM);
+            __m256 fy =
+                _mm256_set_ps(fy_val[7], fy_val[6], fy_val[5], fy_val[4],
+                              fy_val[3], fy_val[2], fy_val[1], fy_val[0]);
+
+            // Ray direction before rotation: (fx, fy, -1.0)
+            __m256 ray_z = _mm256_set1_ps(-1.0f);
+
+            // Apply rotation matrix
+            __m256 dir_x = _mm256_add_ps(
+                _mm256_add_ps(_mm256_mul_ps(m00, fx), _mm256_mul_ps(m01, fy)),
+                _mm256_mul_ps(m02, ray_z));
+
+            __m256 dir_y = _mm256_add_ps(
+                _mm256_add_ps(_mm256_mul_ps(m10, fx), _mm256_mul_ps(m11, fy)),
+                _mm256_mul_ps(m12, ray_z));
+
+            __m256 dir_z = _mm256_add_ps(
+                _mm256_add_ps(_mm256_mul_ps(m20, fx), _mm256_mul_ps(m21, fy)),
+                _mm256_mul_ps(m22, ray_z));
+
+            // Normalize directions
+            __m256 len_sq =
+                _mm256_add_ps(_mm256_add_ps(_mm256_mul_ps(dir_x, dir_x),
+                                            _mm256_mul_ps(dir_y, dir_y)),
+                              _mm256_mul_ps(dir_z, dir_z));
+            __m256 inv_len =
+                _mm256_rsqrt_ps(len_sq); // Approximate reciprocal sqrt
+
+            // Refine reciprocal sqrt
+            inv_len =
+                _mm256_mul_ps(_mm256_set1_ps(1.0f),
+                              _mm256_fnmadd_ps(_mm256_mul_ps(len_sq, inv_len),
+                                               _mm256_set1_ps(0.5f), inv_len));
+
+            dir_x = _mm256_mul_ps(dir_x, inv_len);
+            dir_y = _mm256_mul_ps(dir_y, inv_len);
+            dir_z = _mm256_mul_ps(dir_z, inv_len);
+
+            // Store normalized directions
+            float dirs[8][3];
+            _mm256_storeu_ps(&dirs[0][0], dir_x);
+            _mm256_storeu_ps(&dirs[0][1], dir_y);
+            _mm256_storeu_ps(&dirs[0][2], dir_z);
+
+            // Perform ray marching for each of the 8 pixels
+            uint8_t colors[8];
+            for (int i = 0; i < 8; i++) {
+                float distance =
+                    ray_march(pose->pos[0], pose->pos[1], pose->pos[2],
+                              dirs[i][0], dirs[i][1], dirs[i][2]);
+                colors[i] =
+                    (distance < MAX_ITER)
+                        ? (255 - (uint8_t)(distance * 255.0f / MAX_ITER))
+                        : 0;
+            }
+
+            // Store the results
+            for (int i = 0; i < 8; i++) {
+                data[y * width + x + i] = colors[i];
+            }
+        }
+
+        // Handle remaining pixels
+        for (; x < width; x++) {
+            float fx = (x - width / 2.0f) / width * ZOOM;
+            float fy = (y - height / 2.0f) / height * ZOOM;
             float ray_dir[3] = {fx, fy, -1.0f};
             // Apply rotation from the quaternion
             float dir[3];
@@ -101,18 +196,16 @@ void render_fractal(const Pose *pose, Image *image) {
                 (distance < MAX_ITER)
                     ? (255 - (uint8_t)(distance * 255.0f / MAX_ITER))
                     : 0;
-            image->data[y * CFG_CAMERA_WIDTH + x] = color;
+            data[y * width + x] = color;
         }
     }
-
-    LOG("here3");
 }
 
 int main() {
+    LOG("[c node] Hello World\n");
     set_realtime_priority(10);
     atexit(cleanup);
 
-    LOG("[c node] Hello World\n");
     dora_context = init_dora_context_from_env();
     if (dora_context == NULL) {
         LOG("failed to init dora context\n");
@@ -161,8 +254,7 @@ int main() {
 
         // computation
         LOG("[c node] tick %f\n", elapsed);
-        render_fractal(&view_pose, &fov);
-        LOG("[c node] tick %f\n", elapsed);
+        // render_fractal(&view_pose, &fov);
 
         // send outputs
         DORA_SEND_Image(dora_context, "fov", &fov);

@@ -48,19 +48,13 @@ static inline void dora_read_u8_array(void *event, void *arr, int arr_len) {
 }
 static inline void dora_send_u8_array(void *dora_context, char *id, void *arr,
                                       int arr_len) {
-    char *write[sizeof(uint8_t) * arr_len];
-    memcpy(write, arr, sizeof(uint8_t) * arr_len);
-    dora_send_output_u8(dora_context, id, strlen(id), (uint8_t *)&write,
-                        arr_len);
+    dora_send_output_u8(dora_context, id, strlen(id), (uint8_t *)&arr, arr_len);
 }
 
 // f32
 static inline void dora_send_f32_array(void *dora_context, char *id, void *arr,
                                        int arr_len) {
-    char *write[sizeof(float) * arr_len];
-    memcpy(write, arr, sizeof(float) * arr_len);
-    dora_send_output_f32(dora_context, id, strlen(id), (float *)&write,
-                         arr_len);
+    dora_send_output_f32(dora_context, id, strlen(id), (float *)&arr, arr_len);
 }
 
 static inline void dora_read_f32_array(void *event, void *arr, int arr_len) {
@@ -74,9 +68,7 @@ static inline void dora_read_f32_array(void *event, void *arr, int arr_len) {
 // i32
 static inline void dora_send_i32_array(void *dora_context, char *id, void *arr,
                                        int arr_len) {
-    char *write[sizeof(int32_t) * arr_len];
-    memcpy(write, arr, sizeof(int32_t) * arr_len);
-    dora_send_output_i32(dora_context, id, strlen(id), (int32_t *)&write,
+    dora_send_output_i32(dora_context, id, strlen(id), (int32_t *)&arr,
                          arr_len);
 }
 
@@ -91,9 +83,7 @@ static inline void dora_read_i32_array(void *event, void *arr, int arr_len) {
 // u64
 static inline void dora_send_u64_array(void *dora_context, char *id, void *arr,
                                        int arr_len) {
-    char *write[sizeof(uint64_t) * arr_len];
-    memcpy(write, arr, sizeof(uint64_t) * arr_len);
-    dora_send_output_u64(dora_context, id, strlen(id), (uint64_t *)&write,
+    dora_send_output_u64(dora_context, id, strlen(id), (uint64_t *)&arr,
                          arr_len);
 }
 

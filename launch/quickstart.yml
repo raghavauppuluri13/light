@@ -3,7 +3,7 @@ nodes:
     custom:
       source: ../build/quickstart_node
       inputs:
-        tick: dora/timer/millis/5
+        tick: dora/timer/millis/1
       outputs:
         - fov
   - id: rerun_node

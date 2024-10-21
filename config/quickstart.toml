@@ -1,6 +1,6 @@
 [CAMERA]
-  width = 640
-  height = 480
+  width = 3000
+  height = 3000
 [RECORDER]
 name = "quickstart"
 sample_rate = 100
